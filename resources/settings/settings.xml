@@ -3,9 +3,6 @@
         <settingConfig type="list">
             <listEntry value="0">@Strings.modeCombined</listEntry>
             <listEntry value="1">@Strings.modeBg</listEntry>
-            <listEntry value="2">@Strings.modeArrow</listEntry>
-            <listEntry value="3">@Strings.modeDelta</listEntry>
-            <listEntry value="4">@Strings.modeTimeSince</listEntry>
             <listEntry value="5">@Strings.modeGraph</listEntry>
         </settingConfig>
     </setting>

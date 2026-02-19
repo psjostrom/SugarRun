@@ -3,9 +3,6 @@
     <string id="displayModeTitle">Display Mode</string>
     <string id="modeCombined">Combined</string>
     <string id="modeBg">BG Value</string>
-    <string id="modeArrow">Trend Arrow</string>
-    <string id="modeDelta">Delta</string>
-    <string id="modeTimeSince">Time Since</string>
     <string id="modeGraph">Graph</string>
     <string id="graphDurationTitle">Graph Duration</string>
 

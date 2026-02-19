@@ -5,7 +5,7 @@ SDK="/Users/persjo/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-s
 KEY="$HOME/Library/Application Support/Garmin/ConnectIQ/developer_key.der"
 DEVICE="fr970"
 
-VARIANTS=(combined bg arrow graph)
+VARIANTS=(combined graph)
 
 mkdir -p build
 
