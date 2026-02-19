@@ -1,0 +1,10 @@
+<settings>
+    <setting propertyKey="@Properties.graphDuration" title="@Strings.graphDurationTitle">
+        <settingConfig type="list">
+            <listEntry value="30">30 min</listEntry>
+            <listEntry value="60">60 min</listEntry>
+            <listEntry value="90">90 min</listEntry>
+            <listEntry value="120">120 min</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

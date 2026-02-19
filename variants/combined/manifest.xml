@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <iq:application id="ce9048dd-7cb3-4643-9510-247eb81dfc02" type="datafield" name="@Strings.AppName" entry="SugarRunApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="5.2.0">
+        <iq:products>
+            <iq:product id="fr970"/>
+        </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Communications"/>
+            <iq:uses-permission id="FitContributor"/>
+        </iq:permissions>
+        <iq:languages/>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

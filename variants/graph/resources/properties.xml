@@ -1,0 +1,5 @@
+<properties>
+    <property id="displayMode" type="number">5</property>
+    <property id="graphDuration" type="number">30</property>
+
+</properties>

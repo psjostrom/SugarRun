@@ -1,0 +1,20 @@
+<settings>
+    <setting propertyKey="@Properties.displayMode" title="@Strings.displayModeTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.modeCombined</listEntry>
+            <listEntry value="1">@Strings.modeBg</listEntry>
+            <listEntry value="2">@Strings.modeArrow</listEntry>
+            <listEntry value="3">@Strings.modeDelta</listEntry>
+            <listEntry value="4">@Strings.modeTimeSince</listEntry>
+            <listEntry value="5">@Strings.modeGraph</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.graphDuration" title="@Strings.graphDurationTitle">
+        <settingConfig type="list">
+            <listEntry value="30">30 min</listEntry>
+            <listEntry value="60">60 min</listEntry>
+            <listEntry value="90">90 min</listEntry>
+            <listEntry value="120">120 min</listEntry>
+        </settingConfig>
+    </setting>
+</settings>
