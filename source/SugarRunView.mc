@@ -11,6 +11,8 @@ class SugarRunView extends WatchUi.DataField {
     hidden var mFitField as Field?;
     hidden var mDisplayMode as Conversions.DisplayMode = Conversions.MODE_COMBINED;
     hidden var mGraphDuration as Number = 30;
+    hidden var mBgLow as Float = 4.0f;
+    hidden var mBgHigh as Float = 10.0f;
     hidden var mBgLargeFont as FontResource?;
 
     function initialize() {
@@ -31,6 +33,14 @@ class SugarRunView extends WatchUi.DataField {
         var dur = Properties.getValue("graphDuration");
         if (dur != null && dur instanceof Number) {
             mGraphDuration = dur as Number;
+        }
+        var low = Properties.getValue("bgLow");
+        if (low != null && low instanceof Number) {
+            mBgLow = (low as Number).toFloat() / 10.0f;
+        }
+        var high = Properties.getValue("bgHigh");
+        if (high != null && high instanceof Number) {
+            mBgHigh = (high as Number).toFloat() / 10.0f;
         }
     }
 
@@ -90,7 +100,7 @@ class SugarRunView extends WatchUi.DataField {
     }
 
     hidden function drawBg(dc as Dc, service as CgmService) as Void {
-        var color = Conversions.bgColor(service.mBgMmol);
+        var color = Conversions.bgColor(service.mBgMmol, mBgLow, mBgHigh);
         var text = service.mBgMmol.format("%.1f");
         var w = dc.getWidth();
         var h = dc.getHeight();
@@ -116,7 +126,7 @@ class SugarRunView extends WatchUi.DataField {
     }
 
     hidden function drawArrow(dc as Dc, service as CgmService) as Void {
-        var color = Conversions.bgColor(service.mBgMmol);
+        var color = Conversions.bgColor(service.mBgMmol, mBgLow, mBgHigh);
         var size = dc.getHeight() < dc.getWidth() ? dc.getHeight() : dc.getWidth();
         size = (size * 0.6f).toNumber();
         ArrowRenderer.draw(dc, dc.getWidth() / 2, dc.getHeight() / 2,
@@ -124,7 +134,7 @@ class SugarRunView extends WatchUi.DataField {
     }
 
     hidden function drawDelta(dc as Dc, service as CgmService) as Void {
-        var color = Conversions.bgColor(service.mBgMmol);
+        var color = Conversions.bgColor(service.mBgMmol, mBgLow, mBgHigh);
         var text = Conversions.formatDelta(service.mDeltaMmol);
         var font = pickSecondaryFont(dc.getHeight());
 
@@ -136,8 +146,7 @@ class SugarRunView extends WatchUi.DataField {
     hidden function drawTimeSince(dc as Dc, service as CgmService) as Void {
         var minutes = service.getMinutesSinceLastReading();
         var text = (minutes >= 0) ? minutes.toString() + "'" : "-";
-        var color = (minutes >= 0 && minutes >= Conversions.STALE_MINUTES) ?
-            Conversions.COLOR_STALE : Graphics.COLOR_WHITE;
+        var color = Conversions.staleColor(minutes);
         var font = pickSecondaryFont(dc.getHeight());
 
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
@@ -157,13 +166,13 @@ class SugarRunView extends WatchUi.DataField {
         var padT = (obscFlags & OBSCURE_TOP) ? (h * vPad).toNumber() : 0;
         var padB = (obscFlags & OBSCURE_BOTTOM) ? (h * vPad).toNumber() : 0;
         GraphRenderer.draw(dc, padL, padT, w - padL - padR, h - padT - padB,
-            service.mHistory, mGraphDuration);
+            service.mHistory, mGraphDuration, mBgLow, mBgHigh);
     }
 
     hidden function drawCombined(dc as Dc, service as CgmService) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
-        var color = Conversions.bgColor(service.mBgMmol);
+        var color = Conversions.bgColor(service.mBgMmol, mBgLow, mBgHigh);
 
         // Inset for circular screen clipping
         // Corner strips (near top/bottom of circle) have much shorter chord width
@@ -182,8 +191,7 @@ class SugarRunView extends WatchUi.DataField {
         var minutes = service.getMinutesSinceLastReading();
         var timeText = (minutes >= 0) ? minutes.toString() + "'" : "-";
         var deltaColor = Graphics.COLOR_WHITE;
-        var timeColor = (minutes >= 0 && minutes >= Conversions.STALE_MINUTES) ?
-            Conversions.COLOR_STALE : Graphics.COLOR_WHITE;
+        var timeColor = Conversions.staleColor(minutes);
 
         // Wide strip (aspect > 2:1) → single horizontal row
         if (usableW > usableH * 2) {

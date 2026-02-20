@@ -7,4 +7,23 @@
             <listEntry value="120">120 min</listEntry>
         </settingConfig>
     </setting>
+    <setting propertyKey="@Properties.bgLow" title="@Strings.bgLowTitle">
+        <settingConfig type="list">
+            <listEntry value="30">3.0</listEntry>
+            <listEntry value="35">3.5</listEntry>
+            <listEntry value="40">4.0</listEntry>
+            <listEntry value="45">4.5</listEntry>
+            <listEntry value="50">5.0</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.bgHigh" title="@Strings.bgHighTitle">
+        <settingConfig type="list">
+            <listEntry value="70">7.0</listEntry>
+            <listEntry value="80">8.0</listEntry>
+            <listEntry value="90">9.0</listEntry>
+            <listEntry value="100">10.0</listEntry>
+            <listEntry value="110">11.0</listEntry>
+            <listEntry value="120">12.0</listEntry>
+        </settingConfig>
+    </setting>
 </settings>

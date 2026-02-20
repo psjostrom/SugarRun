@@ -43,6 +43,7 @@ module Conversions {
     const COLOR_GRAPH_LOW_ZONE = 0x441111;     // dark maroon — visible but subtle
     const COLOR_GRAPH_HIGH_LINE = 0xFFAA00;    // orange
     const COLOR_STALE = 0xFF5555;              // bright red — matches low alert
+    const COLOR_STALE_WARNING = 0xFFAA00;     // amber — distinct from BG yellow
 
     function mgdlToMmol(mgdl as Float) as Float {
         return mgdl / MGDL_TO_MMOL;
@@ -60,16 +61,23 @@ module Conversions {
         return DIRECTION_NONE;
     }
 
-    function bgColor(mmol as Float) as Number {
-        if (mmol < BG_LOW) { return COLOR_LOW; }
-        if (mmol > BG_HIGH) { return COLOR_HIGH; }
+    function bgColor(mmol as Float, low as Float, high as Float) as Number {
+        if (mmol < low) { return COLOR_LOW; }
+        if (mmol > high) { return COLOR_HIGH; }
         return COLOR_IN_RANGE;
     }
 
-    function graphDotColor(mmol as Float) as Number {
-        if (mmol < BG_LOW) { return COLOR_GRAPH_DOT_LOW; }
-        if (mmol > BG_HIGH) { return COLOR_GRAPH_DOT_HIGH; }
+    function graphDotColor(mmol as Float, low as Float, high as Float) as Number {
+        if (mmol < low) { return COLOR_GRAPH_DOT_LOW; }
+        if (mmol > high) { return COLOR_GRAPH_DOT_HIGH; }
         return COLOR_GRAPH_DOT_IN_RANGE;
+    }
+
+    function staleColor(minutes as Number) as Number {
+        if (minutes < 0) { return Graphics.COLOR_WHITE; }
+        if (minutes < 5) { return Graphics.COLOR_WHITE; }
+        if (minutes < STALE_MINUTES) { return COLOR_STALE_WARNING; }
+        return COLOR_STALE;
     }
 
     function parseFloat(value) as Float {

@@ -12,14 +12,15 @@ module GraphRenderer {
     // history: Array of {:bg => Float (mmol), :time => Long (unix ms)}, newest first.
     // durationMin: time window in minutes.
     function draw(dc as Dc, x as Number, y as Number, w as Number, h as Number,
-                  history as Array, durationMin as Number) as Void {
+                  history as Array, durationMin as Number,
+                  bgLow as Float, bgHigh as Float) as Void {
         // Black background
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.fillRectangle(x, y, w, h);
 
         // Auto-scale Y range from data with padding, always include ref lines
-        var yMin = Conversions.BG_LOW - 0.5f;   // at least show low line
-        var yMax = Conversions.BG_HIGH + 0.5f;   // at least show high line
+        var yMin = bgLow - 0.5f;   // at least show low line
+        var yMax = bgHigh + 0.5f;   // at least show high line
         for (var i = 0; i < history.size(); i++) {
             var bg = (history[i] as Dictionary)[:bg] as Float;
             if (bg > 0.0f) {
@@ -34,8 +35,8 @@ module GraphRenderer {
         if (yMax > Conversions.GRAPH_Y_MAX) { yMax = Conversions.GRAPH_Y_MAX; }
         var yRange = yMax - yMin;
 
-        // Draw low zone fill (below 4.0 mmol)
-        var lowLineY = mmolToPixelY(Conversions.BG_LOW, y, h, yMin, yRange);
+        // Draw low zone fill (below low threshold)
+        var lowLineY = mmolToPixelY(bgLow, y, h, yMin, yRange);
         dc.setColor(Conversions.COLOR_GRAPH_LOW_ZONE, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(x, lowLineY, w, y + h - lowLineY);
 
@@ -44,7 +45,7 @@ module GraphRenderer {
         dc.setColor(Conversions.COLOR_LOW, Graphics.COLOR_TRANSPARENT);
         drawDashedLine(dc, x, lowLineY, x + w, lowLineY, 6, 4);
 
-        var highLineY = mmolToPixelY(Conversions.BG_HIGH, y, h, yMin, yRange);
+        var highLineY = mmolToPixelY(bgHigh, y, h, yMin, yRange);
         dc.setColor(Conversions.COLOR_GRAPH_HIGH_LINE, Graphics.COLOR_TRANSPARENT);
         drawDashedLine(dc, x, highLineY, x + w, highLineY, 6, 4);
 
@@ -93,7 +94,7 @@ module GraphRenderer {
         for (var i = 0; i < points.size(); i++) {
             var pt = points[i] as Dictionary;
             var bg = pt[:bg] as Float;
-            var dotColor = Conversions.graphDotColor(bg);
+            var dotColor = Conversions.graphDotColor(bg, bgLow, bgHigh);
             dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(pt[:px] as Number, pt[:py] as Number, dotR);
         }
