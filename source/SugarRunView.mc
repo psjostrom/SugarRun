@@ -16,9 +16,11 @@ class SugarRunView extends WatchUi.DataField {
     function initialize() {
         DataField.initialize();
         loadSettings();
-        mFitField = createField("Bloodglucose", 0,
-            FitContributor.DATA_TYPE_FLOAT,
-            {:mesgType => FitContributor.MESG_TYPE_RECORD, :units => "mg/dL"});
+        if (mDisplayMode == Conversions.MODE_COMBINED) {
+            mFitField = createField("Bloodglucose", 0,
+                FitContributor.DATA_TYPE_FLOAT,
+                {:mesgType => FitContributor.MESG_TYPE_RECORD, :units => "mg/dL"});
+        }
     }
 
     function loadSettings() as Void {
