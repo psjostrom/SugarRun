@@ -8,7 +8,9 @@
             <iq:uses-permission id="Communications"/>
             <iq:uses-permission id="FitContributor"/>
         </iq:permissions>
-        <iq:languages/>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
         <iq:barrels/>
     </iq:application>
 </iq:manifest>
