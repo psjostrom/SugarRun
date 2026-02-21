@@ -94,13 +94,26 @@ class CgmService {
             mBgMgdl = Conversions.parseFloat(latest["sgv"]);
             mBgMmol = Conversions.mgdlToMmol(mBgMgdl);
         }
-        if (latest.hasKey("delta")) {
+        // Compute delta from sgv[0]-sgv[1], normalized to 5-min interval
+        // (same approach as SuperStable). Falls back to API delta field.
+        if (readings.size() >= 2) {
+            var prev = readings[1] as Dictionary;
+            if (latest.hasKey("sgv") && prev.hasKey("sgv") &&
+                latest.hasKey("date") && prev.hasKey("date")) {
+                var t0 = Conversions.parseLong(latest["date"]);
+                var t1 = Conversions.parseLong(prev["date"]);
+                var dtMs = t0 - t1;
+                if (dtMs > 0) {
+                    var rawDelta = Conversions.parseFloat(latest["sgv"]) - Conversions.parseFloat(prev["sgv"]);
+                    mDeltaMgdl = rawDelta / (dtMs.toFloat() / 300000.0f);
+                    mDeltaMmol = Conversions.mgdlToMmol(mDeltaMgdl);
+                }
+            }
+        } else if (latest.hasKey("delta")) {
             mDeltaMgdl = Conversions.parseFloat(latest["delta"]);
             mDeltaMmol = Conversions.mgdlToMmol(mDeltaMgdl);
         }
-        if (latest.hasKey("direction")) {
-            mDirection = Conversions.directionFromString(latest["direction"] as String?);
-        }
+        mDirection = Conversions.directionFromDelta(mDeltaMgdl);
         if (latest.hasKey("date")) {
             mLastReadingTime = Conversions.parseLong(latest["date"]);
         }
