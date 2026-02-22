@@ -70,7 +70,11 @@ class SugarRunView extends WatchUi.DataField {
                     var distance = info.elapsedDistance as Float or Null;
                     var duration = (info.elapsedTime != null) ? (info.elapsedTime as Number).toLong() : null;
                     var avgHr = (info.averageHeartRate != null) ? (info.averageHeartRate as Number).toFloat() : null;
-                    service.postRunCompleted(distance, duration, avgHr);
+                    // Skip accidental starts: <100m or <60s
+                    var tooShort = (distance != null && distance < 100.0f) || (duration != null && duration < 60000l);
+                    if (!tooShort) {
+                        service.postRunCompleted(distance, duration, avgHr);
+                    }
                 }
             }
             if (state == Activity.TIMER_STATE_ON) {
