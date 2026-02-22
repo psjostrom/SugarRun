@@ -14,6 +14,8 @@ class SugarRunView extends WatchUi.DataField {
     hidden var mBgLow as Float = 4.0f;
     hidden var mBgHigh as Float = 10.0f;
     hidden var mBgLargeFont as FontResource?;
+    hidden var mPrevTimerState as Activity.TimerState = Activity.TIMER_STATE_OFF;
+    hidden var mStopNotified as Boolean = false;
 
     function initialize() {
         DataField.initialize();
@@ -57,6 +59,24 @@ class SugarRunView extends WatchUi.DataField {
             if (service.mHasData && mFitField != null) {
                 mFitField.setData(service.mBgMgdl);
             }
+        }
+
+        // Detect activity stop → POST run data to Springa
+        if (info.timerState != null) {
+            var state = info.timerState as Activity.TimerState;
+            if (state == Activity.TIMER_STATE_STOPPED && mPrevTimerState != Activity.TIMER_STATE_STOPPED && !mStopNotified) {
+                mStopNotified = true;
+                if (service != null) {
+                    var distance = info.elapsedDistance as Float or Null;
+                    var duration = (info.elapsedTime != null) ? (info.elapsedTime as Number).toLong() : null;
+                    var avgHr = (info.averageHeartRate != null) ? (info.averageHeartRate as Number).toFloat() : null;
+                    service.postRunCompleted(distance, duration, avgHr);
+                }
+            }
+            if (state == Activity.TIMER_STATE_ON) {
+                mStopNotified = false;
+            }
+            mPrevTimerState = state;
         }
     }
 

@@ -7,4 +7,6 @@
     <string id="graphDurationTitle">Graph Duration</string>
     <string id="bgLowTitle">Low Threshold (mmol/L)</string>
     <string id="bgHighTitle">High Threshold (mmol/L)</string>
+    <string id="springaUrlTitle">Springa URL</string>
+    <string id="springaSecretTitle">Springa Secret</string>
 </strings>

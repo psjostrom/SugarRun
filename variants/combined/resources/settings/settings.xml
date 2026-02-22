@@ -33,4 +33,10 @@
             <listEntry value="120">12.0</listEntry>
         </settingConfig>
     </setting>
+    <setting propertyKey="@Properties.springaUrl" title="@Strings.springaUrlTitle">
+        <settingConfig type="alphaNumeric" />
+    </setting>
+    <setting propertyKey="@Properties.springaSecret" title="@Strings.springaSecretTitle">
+        <settingConfig type="alphaNumeric" />
+    </setting>
 </settings>
