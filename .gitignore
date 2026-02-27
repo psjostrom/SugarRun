@@ -3,3 +3,4 @@ build/
 *.iq
 bin/
 CLAUDE.md
+source/Secrets.mc

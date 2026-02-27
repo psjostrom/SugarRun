@@ -14,6 +14,8 @@ class SugarRunView extends WatchUi.DataField {
     hidden var mBgLow as Float = 4.0f;
     hidden var mBgHigh as Float = 10.0f;
     hidden var mBgLargeFont as FontResource?;
+    hidden var mUseCustomFont as Boolean = false;
+    hidden var mVAlign as Number = 2;  // 0=top, 1=middle, 2=bottom
     hidden var mPrevTimerState as Activity.TimerState = Activity.TIMER_STATE_OFF;
     hidden var mStopNotified as Boolean = false;
 
@@ -44,6 +46,14 @@ class SugarRunView extends WatchUi.DataField {
         if (high != null && high instanceof Number) {
             mBgHigh = (high as Number).toFloat() / 10.0f;
         }
+        var fs = Properties.getValue("bgFontSize");
+        if (fs != null && fs instanceof Number) {
+            mUseCustomFont = (fs as Number) == 0;
+        }
+        var va = Properties.getValue("vAlign");
+        if (va != null && va instanceof Number) {
+            mVAlign = va as Number;
+        }
     }
 
     function onLayout(dc as Dc) as Void {
@@ -67,13 +77,12 @@ class SugarRunView extends WatchUi.DataField {
             if (state == Activity.TIMER_STATE_STOPPED && mPrevTimerState != Activity.TIMER_STATE_STOPPED && !mStopNotified) {
                 mStopNotified = true;
                 if (service != null) {
+                    // Skip accidental starts: <100m or <60s
                     var distance = info.elapsedDistance as Float or Null;
                     var duration = (info.elapsedTime != null) ? (info.elapsedTime as Number).toLong() : null;
-                    var avgHr = (info.averageHeartRate != null) ? (info.averageHeartRate as Number).toFloat() : null;
-                    // Skip accidental starts: <100m or <60s
                     var tooShort = (distance != null && distance < 100.0f) || (duration != null && duration < 60000l);
                     if (!tooShort) {
-                        service.postRunCompleted(distance, duration, avgHr);
+                        service.postRunCompleted();
                     }
                 }
             }
@@ -228,8 +237,20 @@ class SugarRunView extends WatchUi.DataField {
     hidden function drawCombinedHorizontal(dc as Dc, service as CgmService, color as Number, deltaColor as Number,
             bgText as String, deltaText as String, timeText as String, timeColor as Number,
             padL as Number, padT as Number, usableW as Number, usableH as Number) as Void {
-        // BG uses custom large bitmap font — let it clip vertically for max size
-        var bgFont = mBgLargeFont != null ? mBgLargeFont : pickBgFont(usableH);
+        var bgFont;
+        if (mUseCustomFont && mBgLargeFont != null) {
+            bgFont = mBgLargeFont;
+        } else {
+            // Pick secondary font first, then BG is one notch above
+            var secFont0 = pickSecondaryFont(usableH);
+            bgFont = stepUpFont(secFont0);
+            // Step down if it doesn't fit height
+            for (var i = 0; i < 5; i++) {
+                if (dc.getFontHeight(bgFont) <= usableH) { break; }
+                if (bgFont == Graphics.FONT_MEDIUM) { break; }
+                bgFont = stepDownBgFont(bgFont);
+            }
+        }
         var secFont = pickSecondaryFont(usableH);
 
         var bgW = dc.getTextWidthInPixels(bgText, bgFont);
@@ -243,10 +264,35 @@ class SugarRunView extends WatchUi.DataField {
         var gap = (usableH * 0.12f).toNumber();
         if (gap < 3) { gap = 3; }
         var totalW = timeW + gap + arrowSize + gap + bgW + gap + deltaW;
+
+        // Step down fonts until everything fits width
+        for (var j = 0; j < 8; j++) {
+            if (totalW <= usableW) { break; }
+            if (bgFont != Graphics.FONT_MEDIUM && !(mUseCustomFont && bgFont == mBgLargeFont)) {
+                bgFont = stepDownBgFont(bgFont);
+            } else if (secFont != Graphics.FONT_TINY) {
+                secFont = stepDownSecFont(secFont);
+            } else {
+                break;
+            }
+            bgW = dc.getTextWidthInPixels(bgText, bgFont);
+            deltaW = dc.getTextWidthInPixels(deltaText, secFont);
+            timeW = dc.getTextWidthInPixels(timeText, secFont);
+            totalW = timeW + gap + arrowSize + gap + bgW + gap + deltaW;
+        }
+
         var x = padL + (usableW - totalW) / 2;
         if (x < padL) { x = padL; }
 
-        var cy = padT + usableH / 2;
+        var bgFontH = dc.getFontHeight(bgFont);
+        var cy;
+        if (mVAlign == 2) {
+            cy = padT + usableH - bgFontH / 2;
+        } else if (mVAlign == 1) {
+            cy = padT + usableH / 2;
+        } else {
+            cy = padT + bgFontH / 2;
+        }
 
         // TimeSince — far left
         dc.setColor(timeColor, Graphics.COLOR_TRANSPARENT);
@@ -348,6 +394,21 @@ class SugarRunView extends WatchUi.DataField {
         return Graphics.FONT_MEDIUM;
     }
 
+    hidden function stepDownSecFont(font as FontDefinition) as FontDefinition {
+        if (font == Graphics.FONT_MEDIUM) { return Graphics.FONT_SMALL; }
+        return Graphics.FONT_TINY;
+    }
+
+    hidden function stepUpFont(font as FontDefinition) as FontDefinition {
+        if (font == Graphics.FONT_TINY) { return Graphics.FONT_SMALL; }
+        if (font == Graphics.FONT_SMALL) { return Graphics.FONT_MEDIUM; }
+        if (font == Graphics.FONT_MEDIUM) { return Graphics.FONT_LARGE; }
+        if (font == Graphics.FONT_LARGE) { return Graphics.FONT_NUMBER_MEDIUM; }
+        if (font == Graphics.FONT_NUMBER_MEDIUM) { return Graphics.FONT_NUMBER_HOT; }
+        if (font == Graphics.FONT_NUMBER_HOT) { return Graphics.FONT_NUMBER_THAI_HOT; }
+        return Graphics.FONT_NUMBER_THAI_HOT;
+    }
+
     hidden function pickSecondaryFont(fieldHeight as Number) as FontDefinition {
         if (fieldHeight >= 80) {
             return Graphics.FONT_MEDIUM;
@@ -356,6 +417,6 @@ class SugarRunView extends WatchUi.DataField {
         } else if (fieldHeight >= 30) {
             return Graphics.FONT_TINY;
         }
-        return Graphics.FONT_XTINY;
+        return Graphics.FONT_TINY;
     }
 }

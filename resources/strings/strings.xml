@@ -5,8 +5,13 @@
     <string id="modeBg">BG Value</string>
     <string id="modeGraph">Graph</string>
     <string id="graphDurationTitle">Graph Duration</string>
+    <string id="bgFontSizeTitle">BG Font</string>
+    <string id="fontCustom">Custom</string>
+    <string id="fontSystem">System</string>
+    <string id="vAlignTitle">Vertical Align</string>
+    <string id="alignTop">Top</string>
+    <string id="alignMiddle">Middle</string>
+    <string id="alignBottom">Bottom</string>
     <string id="bgLowTitle">Low Threshold (mmol/L)</string>
     <string id="bgHighTitle">High Threshold (mmol/L)</string>
-    <string id="springaUrlTitle">Springa URL</string>
-    <string id="springaSecretTitle">Springa Secret</string>
 </strings>

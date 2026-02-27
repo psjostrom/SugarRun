@@ -1,4 +1,3 @@
-import Toybox.Application.Properties;
 import Toybox.Communications;
 import Toybox.Lang;
 import Toybox.Time;
@@ -144,27 +143,16 @@ class CgmService {
         return ((Time.now().value().toLong() - mLastReadingTime / 1000) / 60).toNumber();
     }
 
-    function postRunCompleted(distance as Float or Null, duration as Long or Null, avgHr as Float or Null) as Void {
-        var url = Properties.getValue("springaUrl") as String;
-        var secret = Properties.getValue("springaSecret") as String;
-        if (url == null || secret == null || url.equals("") || secret.equals("")) {
+    function postRunCompleted() as Void {
+        var url = Secrets.SPRINGA_URL;
+        var secret = Secrets.SPRINGA_SECRET;
+        if (url.equals("") || secret.equals("")) {
             return;
-        }
-
-        var body = {} as Dictionary;
-        if (distance != null) {
-            body.put("distance", distance);
-        }
-        if (duration != null) {
-            body.put("duration", duration);
-        }
-        if (avgHr != null) {
-            body.put("avgHr", avgHr);
         }
 
         Communications.makeWebRequest(
             url + "/api/run-completed",
-            body,
+            {} as Dictionary,
             {
                 :method => Communications.HTTP_REQUEST_METHOD_POST,
                 :headers => { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON, "api-secret" => secret },

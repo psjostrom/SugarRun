@@ -33,10 +33,17 @@
             <listEntry value="120">12.0</listEntry>
         </settingConfig>
     </setting>
-    <setting propertyKey="@Properties.springaUrl" title="@Strings.springaUrlTitle">
-        <settingConfig type="alphaNumeric" />
+    <setting propertyKey="@Properties.bgFontSize" title="@Strings.bgFontSizeTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.fontCustom</listEntry>
+            <listEntry value="1">@Strings.fontSystem</listEntry>
+        </settingConfig>
     </setting>
-    <setting propertyKey="@Properties.springaSecret" title="@Strings.springaSecretTitle">
-        <settingConfig type="alphaNumeric" />
+    <setting propertyKey="@Properties.vAlign" title="@Strings.vAlignTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.alignTop</listEntry>
+            <listEntry value="1">@Strings.alignMiddle</listEntry>
+            <listEntry value="2">@Strings.alignBottom</listEntry>
+        </settingConfig>
     </setting>
 </settings>

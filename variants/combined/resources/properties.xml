@@ -3,6 +3,6 @@
     <property id="graphDuration" type="number">30</property>
     <property id="bgLow" type="number">40</property>
     <property id="bgHigh" type="number">100</property>
-    <property id="springaUrl" type="string"></property>
-    <property id="springaSecret" type="string"></property>
+    <property id="bgFontSize" type="number">1</property>
+    <property id="vAlign" type="number">2</property>
 </properties>
