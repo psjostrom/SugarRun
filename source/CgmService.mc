@@ -19,7 +19,6 @@ class CgmService {
     const FETCH_INTERVAL = 60; // seconds
 
     function initialize() {
-        loadMockData();
     }
 
     function loadMockData() as Void {
@@ -140,7 +139,8 @@ class CgmService {
         if (mLastReadingTime == 0l) {
             return -1;
         }
-        return ((Time.now().value().toLong() - mLastReadingTime / 1000) / 60).toNumber();
+        var nowUnixMs = (Time.now().value().toLong() + Conversions.GARMIN_EPOCH_OFFSET) * 1000l;
+        return ((nowUnixMs - mLastReadingTime) / 60000l).toNumber();
     }
 
     function postRunCompleted() as Void {
