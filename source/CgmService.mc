@@ -1,0 +1,120 @@
+import Toybox.Application;
+import Toybox.Communications;
+import Toybox.Lang;
+import Toybox.Time;
+
+class CgmService {
+
+    var mBgMgdl as Float = 0.0f;
+    var mBgMmol as Float = 0.0f;
+    var mDeltaMgdl as Float = 0.0f;
+    var mDeltaMmol as Float = 0.0f;
+    var mDirection as Conversions.Direction = Conversions.DIRECTION_NONE;
+    var mLastReadingTime as Long = 0l;
+    var mHasData as Boolean = false;
+    var mLastError as String = "";
+
+    hidden var mLastFetchTime as Number = 0;
+    hidden var mFetching as Boolean = false;
+    const FETCH_INTERVAL = 15;
+
+    function initialize() {
+    }
+
+    function update() as Void {
+        var now = Time.now().value();
+        if (!mFetching && (mLastFetchTime == 0 || now - mLastFetchTime >= FETCH_INTERVAL)) {
+            mLastFetchTime = now;
+            fetchData();
+        }
+    }
+
+    function fetchData() as Void {
+        var url = Application.Properties.getValue("nightscoutUrl") as String?;
+        var secret = Application.Properties.getValue("nightscoutSecret") as String?;
+        if (url == null || url.equals("") || secret == null || secret.equals("")) {
+            mLastError = "Set URL";
+            return;
+        }
+        mFetching = true;
+        mLastError = "...";
+        Communications.makeWebRequest(
+            url + "/api/sgv?count=1",
+            null,
+            {
+                :method => Communications.HTTP_REQUEST_METHOD_GET,
+                :headers => { "api-secret" => secret },
+                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
+            },
+            method(:onReceive)
+        );
+    }
+
+    function onReceive(responseCode as Number, data as Dictionary or String or Null) as Void {
+        mFetching = false;
+
+        if (responseCode != 200) {
+            mLastError = "HTTP " + responseCode;
+            return;
+        }
+        if (data == null) {
+            mLastError = "null";
+            return;
+        }
+
+        var readings = data as Array;
+        if (readings.size() == 0) {
+            mLastError = "empty";
+            return;
+        }
+
+        var latest = readings[0] as Dictionary;
+
+        if (latest.hasKey("sgv")) {
+            mBgMgdl = Conversions.parseFloat(latest["sgv"]);
+            mBgMmol = Conversions.mgdlToMmol(mBgMgdl);
+        }
+        mDeltaMgdl = Conversions.parseFloat(latest["delta"]);
+        mDeltaMmol = Conversions.mgdlToMmol(mDeltaMgdl);
+        mDirection = Conversions.directionFromString(latest["direction"]);
+        if (latest.hasKey("date")) {
+            mLastReadingTime = Conversions.parseLong(latest["date"]);
+        }
+
+        mHasData = true;
+        mLastError = "";
+    }
+
+    function getMinutesSinceLastReading() as Number {
+        if (mLastReadingTime == 0l) {
+            return -1;
+        }
+        var nowUnixMs = Time.now().value().toLong() * 1000l;
+        return ((nowUnixMs - mLastReadingTime) / 60000l).toNumber();
+    }
+
+    function postRunCompleted() as Void {
+        var url = Application.Properties.getValue("nightscoutUrl") as String?;
+        var secret = Application.Properties.getValue("nightscoutSecret") as String?;
+        if (url == null || url.equals("") || secret == null || secret.equals("")) {
+            return;
+        }
+
+        Communications.makeWebRequest(
+            url + "/api/run-completed",
+            {} as Dictionary,
+            {
+                :method => Communications.HTTP_REQUEST_METHOD_POST,
+                :headers => { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON, "api-secret" => secret },
+                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
+            },
+            method(:onRunCompletedResponse)
+        );
+    }
+
+    function onRunCompletedResponse(responseCode as Number, data as Dictionary or String or Null) as Void {
+    }
+
+    function stop() as Void {
+    }
+}

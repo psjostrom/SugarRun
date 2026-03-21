@@ -1,0 +1,6 @@
+build/
+*.prg
+*.iq
+bin/
+CLAUDE.md
+source/Secrets.mc

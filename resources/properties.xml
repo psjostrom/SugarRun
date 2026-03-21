@@ -1,0 +1,8 @@
+<properties>
+    <property id="nightscoutUrl" type="string"></property>
+    <property id="nightscoutSecret" type="string"></property>
+    <property id="bgLow" type="number">40</property>
+    <property id="bgHigh" type="number">100</property>
+    <property id="bgFontSize" type="number">1</property>
+    <property id="vAlign" type="number">2</property>
+</properties>
