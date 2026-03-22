@@ -30,19 +30,19 @@ class CgmService {
     }
 
     function fetchData() as Void {
-        var url = Application.Properties.getValue("nightscoutUrl") as String?;
+        var rawUrl = Application.Properties.getValue("nightscoutUrl") as String?;
         var secret = Application.Properties.getValue("nightscoutSecret") as String?;
-        if (url == null || url.equals("") || secret == null || secret.equals("")) {
+        if (rawUrl == null || rawUrl.equals("") || secret == null || secret.equals("")) {
             mLastError = "Set URL";
             return;
         }
+        var url = normalizeUrl(rawUrl);
         mFetching = true;
         mLastError = "...";
         Communications.makeWebRequest(
-            url + "/api/sgv?count=1",
-            null,
+            url + "/api/v1/entries/sgv.json?count=1",
+            {},
             {
-                :method => Communications.HTTP_REQUEST_METHOD_GET,
                 :headers => { "api-secret" => secret },
                 :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
             },
@@ -93,12 +93,24 @@ class CgmService {
         return ((nowUnixMs - mLastReadingTime) / 60000l).toNumber();
     }
 
+    hidden function normalizeUrl(raw as String) as String {
+        if (raw.find("https://") == 0 || raw.find("http://") == 0) {
+            // Strip trailing slash
+            if (raw.length() > 8 && raw.substring(raw.length() - 1, raw.length()).equals("/")) {
+                return raw.substring(0, raw.length() - 1);
+            }
+            return raw;
+        }
+        return "https://" + raw;
+    }
+
     function postRunCompleted() as Void {
-        var url = Application.Properties.getValue("nightscoutUrl") as String?;
+        var rawUrl = Application.Properties.getValue("nightscoutUrl") as String?;
         var secret = Application.Properties.getValue("nightscoutSecret") as String?;
-        if (url == null || url.equals("") || secret == null || secret.equals("")) {
+        if (rawUrl == null || rawUrl.equals("") || secret == null || secret.equals("")) {
             return;
         }
+        var url = normalizeUrl(rawUrl);
 
         Communications.makeWebRequest(
             url + "/api/run-completed",
