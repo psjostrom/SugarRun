@@ -104,29 +104,6 @@ class CgmService {
         return "https://" + raw;
     }
 
-    function postRunCompleted() as Void {
-        var rawUrl = Application.Properties.getValue("nightscoutUrl") as String?;
-        var secret = Application.Properties.getValue("nightscoutSecret") as String?;
-        if (rawUrl == null || rawUrl.equals("") || secret == null || secret.equals("")) {
-            return;
-        }
-        var url = normalizeUrl(rawUrl);
-
-        Communications.makeWebRequest(
-            url + "/api/run-completed",
-            {} as Dictionary,
-            {
-                :method => Communications.HTTP_REQUEST_METHOD_POST,
-                :headers => { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON, "api-secret" => secret },
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-            },
-            method(:onRunCompletedResponse)
-        );
-    }
-
-    function onRunCompletedResponse(responseCode as Number, data as Dictionary or String or Null) as Void {
-    }
-
     function stop() as Void {
     }
 }
