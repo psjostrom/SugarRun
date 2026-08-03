@@ -14,8 +14,6 @@ class SugarFieldView extends WatchUi.DataField {
     hidden var mBgLargeFont as FontResource?;
     hidden var mUseCustomFont as Boolean = false;
     hidden var mVAlign as Number = 2;  // 0=top, 1=middle, 2=bottom
-    hidden var mPrevTimerState as Activity.TimerState = Activity.TIMER_STATE_OFF;
-    hidden var mStopNotified as Boolean = false;
 
     function initialize() {
         DataField.initialize();
@@ -55,26 +53,6 @@ class SugarFieldView extends WatchUi.DataField {
             if (service.mHasData && mFitField != null) {
                 mFitField.setData(service.mBgMgdl);
             }
-        }
-
-        // Detect activity stop → POST run data to Springa
-        if (info.timerState != null) {
-            var state = info.timerState as Activity.TimerState;
-            if (state == Activity.TIMER_STATE_STOPPED && mPrevTimerState != Activity.TIMER_STATE_STOPPED && !mStopNotified) {
-                mStopNotified = true;
-                if (service != null) {
-                    var distance = info.elapsedDistance as Float or Null;
-                    var duration = (info.elapsedTime != null) ? (info.elapsedTime as Number).toLong() : null;
-                    var tooShort = (distance != null && distance < 100.0f) || (duration != null && duration < 60000l);
-                    if (!tooShort) {
-                        service.postRunCompleted();
-                    }
-                }
-            }
-            if (state == Activity.TIMER_STATE_ON) {
-                mStopNotified = false;
-            }
-            mPrevTimerState = state;
         }
     }
 
